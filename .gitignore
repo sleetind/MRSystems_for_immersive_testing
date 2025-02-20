@@ -1,0 +1,10 @@
+logs/
+Library/
+obj/
+UserSettings/
+.vsconfig
+Assembly-CSharp.csproj
+Assembly-CSharp-Editor.csproj
+MRTKryuuyou.sln
+RuntimeActionBindings.json
+XRSDK_Quest3_Portal_etc.sln

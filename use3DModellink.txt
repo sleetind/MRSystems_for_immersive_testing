@@ -1,0 +1,155 @@
++-------------------+        +-------------------+        +-------------------+
+|    Scene 1        | <----> |    Scene 2        | <----> |    Scene 3        |
+| (Home Screen)     |        | (Details Screen)  |        | (Settings Screen) |
+| [To Scene 2]      |        | [To Scene 1]      |        | [To Scene 1]      |
+| [To Scene 3]      |        | [To Scene 3]      |        | [To Scene 2]      |
++-------------------+        +-------------------+        +-------------------+
+
+
++--------------------------------------------------+
+|                Scene 1 (ホーム)                  |
+|--------------------------------------------------|
+| Toggle Buttons: [Scene2] [Scene3]                |
+| Unique Actions:                                  |
+| - 初期データのロード                            |
+| - ユーザー認証処理                              |
+| - メインメニューの表示                          |
++--------------------------------------------------+
+               ^             |             ^
+               |             |             |
+               |  Toggle     |     Toggle  |
+               |             |             |
+               v             |             v
++--------------------------------------------------+
+|               Scene 2 (詳細画面)                 |
+|--------------------------------------------------|
+| Toggle Buttons: [Scene1] [Scene3]                |
+| Unique Actions:                                  |
+| - 詳細データの取得と表示                         |
+| - インタラクティブな編集機能                     |
+| - リアルタイム更新処理                           |
++--------------------------------------------------+
+               ^             |             ^
+               |             |             |
+               |  Toggle     |     Toggle  |
+               |             |             |
+               v             |             v
++--------------------------------------------------+
+|               Scene 3 (設定画面)                 |
+|--------------------------------------------------|
+| Toggle Buttons: [Scene1] [Scene2]                |
+| Unique Actions:                                  |
+| - ユーザー設定の変更・保存                       |
+| - テーマやレイアウトなどのカスタマイズ           |
+| - 設定内容の反映処理                             |
++--------------------------------------------------+
+
+
+┌────────────────────────────┐
+│ <<abstract>> Scene │
+├────────────────────────────┤
+│ - toggleButtons: List │
+│ <ToggleButton> │
+├────────────────────────────┤
+│ + display(): void │
+│ + onTogglePress(btn: │
+│ ToggleButton): void │
+│ + executeUniqueAction(): │
+│ void │
+└────────────────────────────┘
+▲ ▲ ▲
+│ │ │
+┌─────────────┼──── ┌┼─────────────┐
+│ │ ││ │
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│ Scene1 │ │ Scene2 │ │ Scene3 │
+├─────────────┤ ├─────────────┤ ├─────────────┤
+│ + initData()│ │ + getDetail()│ │ + manageSettings() │
+│ + authUser()│ │ + editData() │ │ + customizeUI() │
+└─────────────┘ └─────────────┘ └─────────────┘
+　　　　　　　　　┌────────────────────────────┐
+│ ToggleButton │
+├────────────────────────────┤
+│ - label: String │
+│ - targetScene: Scene │
+├────────────────────────────┤
+│ + onClick(): void │
+└────────────────────────────┘
+説明
+
+
+
+
+
+A((Start)) --> B[SceneManager.GetActiveScene().name<br>→ currentSceneNameへ格納]
+    B --> C[SetToggleState(currentSceneName)<br>→ 対応するToggleをONにする]
+    C --> D[foreach (toggle in toggles)<br>→ OnToggleChangedリスナーを登録]
+    D --> E((OnToggleChanged))
+    E --> F{changedToggle.isOnがTrue?}
+    F -->|No| G[処理終了]
+    F -->|Yes| H{sceneName != currentSceneName?}
+    H -->|No| G
+    H -->|Yes| I[SceneManager.LoadScene(sceneName)]
+    I --> G[処理終了]
+
+
+flowchart TD
+    A[Start]
+    B[worldObjectのRendererからマテリアル取得]
+    C[worldMaterials に追加]
+    D[初期設定: ClipMode("DISABLED")]
+    A --> B --> C --> D
+    D --> E[待機：OnTriggerEnter / OnTriggerExit]
+
+    subgraph ポータル入退室
+        E --> F{OnTriggerEnter: EventがmainCamera?}
+        F -- Yes --> G[既にポータル内なら処理スキップ]
+        G -- No --> H[isInPortal = true]
+        H --> I[SetStencilComparison(Always)]
+        I --> J[mainCamera の Local座標取得]
+        J --> K[enteringSide = sign(localPos.z)]
+        K --> L{isARModeとenteringSideで判断}
+        L -- 条件1 --> M[ClipMode("LESSTHAN")]
+        L -- 条件2 --> N[ClipMode("GREATERTHAN")]
+
+        E --> O{OnTriggerExit: EventがmainCamera?}
+        O -- Yes --> P[isInPortal = false]
+        P --> Q[mainCamera の Local座標取得]
+        Q --> R[exitingSide = sign(localPos.z)]
+        R --> S[ステンシル比較条件更新 (Equal/NotEqual)]
+        S --> T[UI (SelectMenu, Information) 状態更新]
+        T --> U[ClipMode("DISABLED")]
+    end
+
+
+flowchart TD
+    A[PortalManager: ClipMode(mode) 呼び出し]
+    B[全マテリアルに対してループ開始]
+    C[各マテリアル: すべてのキーワードを無効化]
+    D[受け取った mode を大文字に変換]
+    E[対象キーワード = "_CLIPPING_MODE_" + mode]
+    F[対象キーワードを有効化する]
+    G[ループ終了]
+    H[MaskedShader で multi_compile により各キーワードに応じた分岐が行われる]
+    I{有効なキーワードは？}
+    J[_CLIPPING_MODE_DISABLED]
+    K[_CLIPPING_MODE_GREATERTHAN]
+    L[_CLIPPING_MODE_LESSTHAN]
+    M[通常描画（アルファクリッピング適用）]
+    N[フラグメント：if (worldPos.z > _ZThreshold) clip(-1)]
+    O[フラグメント：if (worldPos.z < _ZThreshold) clip(-1)]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+    I -- Disabled --> J
+    I -- GreaterThan --> K
+    I -- LessThan --> L
+    J --> M
+    K --> N
+    L --> O

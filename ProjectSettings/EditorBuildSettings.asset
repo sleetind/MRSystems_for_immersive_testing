@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Portal.unity
+    guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 0
+    path: Assets/RPG_FPS_game_assets_industrial/Map_v1.unity
+    guid: 5a463281e6e238742a45430f11e82829
+  - enabled: 1
+    path: Assets/Scenes/ControllerHaptics.unity
+    guid: 82d8fb49de64fde45b74e2cd50f58bda
+  - enabled: 1
+    path: Assets/Scenes/OcclusionTest.unity
+    guid: b74b20077afae8a4ba7c77ccbf5bc0cb
+  - enabled: 0
+    path: Assets/Scenes/Occlusion_illusion.unity
+    guid: 4d8427fd7f0163b45bd1142dd784b374
+  - enabled: 0
+    path: "Assets/Samples/Meta XR Interaction \u200BSDK/71.0.0/Example Scenes/UISetExamples.unity"
+    guid: 07e3686372a704147b219707ee3c6f62
+  - enabled: 0
+    path: "Assets/Samples/Meta XR Interaction \u200BSDK/71.0.0/Example Scenes/TransformerExamples.unity"
+    guid: 7475942f60c376744ba1ec487d140105
+  - enabled: 0
+    path: Assets/Scenes/WorldBuilder.unity
+    guid: a4d94eef485f2cf4fb4da4b164fd5334
+  m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: eb77f022cd7d23a40ba08bc10d5aadf1,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 99c7ece9f55b8604f82f87546f39df55,
+      type: 2}
